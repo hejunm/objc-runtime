@@ -1971,6 +1971,7 @@ void arr_init(void)
 }
 
 + (void)initialize {
+  
 }
 
 + (id)self {

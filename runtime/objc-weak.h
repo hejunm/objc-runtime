@@ -78,7 +78,7 @@ typedef DisguisedPtr<objc_object *> weak_referrer_t;
 #define REFERRERS_OUT_OF_LINE 2
 
 struct weak_entry_t {
-    DisguisedPtr<objc_object> referent;
+    DisguisedPtr<objc_object> referent; //被引用的对象
     union {
         struct {
             weak_referrer_t *referrers;
@@ -117,10 +117,10 @@ struct weak_entry_t {
  * and weak_entry_t structs as their values.
  */
 struct weak_table_t {
-    weak_entry_t *weak_entries;
-    size_t    num_entries;
-    uintptr_t mask;
-    uintptr_t max_hash_displacement;
+    weak_entry_t *weak_entries;   //数组容器， 存储所有弱引用关系
+    size_t    num_entries;        //数量
+    uintptr_t mask;               //数组容器size-1
+    uintptr_t max_hash_displacement;  //最大位移。通过w_hash_pointer（referent）得到index作为数据下标。如果所在下标已经有entries且不是 referent就是hash冲突。 向后查找到一个空的位置。
 };
 
 /// Adds an (object, weak pointer) pair to the weak table.

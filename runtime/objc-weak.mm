@@ -204,6 +204,7 @@ static void remove_referrer(weak_entry_t *entry, objc_object **old_referrer)
     entry->num_refs--;
 }
 
+///插入weak_entry
 /** 
  * Add new_entry to the object's table of weak references.
  * Does not check whether the referent is already in the table.
@@ -230,7 +231,7 @@ static void weak_entry_insert(weak_table_t *weak_table, weak_entry_t *new_entry)
     }
 }
 
-
+/// 对weak_table 扩容
 static void weak_resize(weak_table_t *weak_table, size_t new_size)
 {
     size_t old_size = TABLE_SIZE(weak_table);
@@ -256,6 +257,7 @@ static void weak_resize(weak_table_t *weak_table, size_t new_size)
     }
 }
 
+///如果需要扩容，则进行扩容
 // Grow the given zone's table of weak references if it is full.
 static void weak_grow_maybe(weak_table_t *weak_table)
 {
@@ -267,6 +269,7 @@ static void weak_grow_maybe(weak_table_t *weak_table)
     }
 }
 
+///缩容
 // Shrink the table if it is mostly empty.
 static void weak_compact_maybe(weak_table_t *weak_table)
 {
@@ -279,7 +282,7 @@ static void weak_compact_maybe(weak_table_t *weak_table)
     }
 }
 
-
+///删除weak_entry
 /**
  * Remove entry from the zone's table of weak references.
  */
@@ -295,6 +298,7 @@ static void weak_entry_remove(weak_table_t *weak_table, weak_entry_t *entry)
 }
 
 
+/// 查找出对像对应的weak_entry_t
 /** 
  * Return the weak reference table entry for the given referent. 
  * If there is no entry for referent, return NULL. 
@@ -329,6 +333,7 @@ weak_entry_for_referent(weak_table_t *weak_table, objc_object *referent)
     return &weak_table->weak_entries[index];
 }
 
+///删除一个引用
 /** 
  * Unregister an already-registered weak reference.
  * This is used when referrer's storage is about to go away, but referent
@@ -358,7 +363,7 @@ weak_unregister_no_lock(weak_table_t *weak_table, id referent_id,
     if ((entry = weak_entry_for_referent(weak_table, referent))) {
         remove_referrer(entry, referrer);
         bool empty = true;
-        if (entry->out_of_line()  &&  entry->num_refs != 0) {
+        if (entry->out_of_line()  &&  entry->num_refs != 0) { //存储方式从inline_referrers切换为out_of_line模式 之后一直就是out_of_line。切换时inline_referrers存储的数据会被覆盖
             empty = false;
         }
         else {
@@ -379,6 +384,7 @@ weak_unregister_no_lock(weak_table_t *weak_table, id referent_id,
     // value not change.
 }
 
+///添加一个引用
 /** 
  * Registers a new (object, weak pointer) pair. Creates a new weak
  * object entry if it does not exist.
@@ -450,7 +456,7 @@ weak_is_registered_no_lock(weak_table_t *weak_table, id referent_id)
 }
 #endif
 
-
+/// weak对象销毁的时 删除引用
 /** 
  * Called by dealloc; nils out all weak pointers that point to the 
  * provided object so that they can no longer be used.
