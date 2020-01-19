@@ -520,7 +520,7 @@ void cache_t::bad_cache(id receiver, SEL sel, Class isa)
          "invalid object, or a memory error somewhere else.");
 }
 
-
+///查找缓存
 bucket_t * cache_t::find(cache_key_t k, id receiver)
 {
     assert(k != 0);
@@ -540,7 +540,7 @@ bucket_t * cache_t::find(cache_key_t k, id receiver)
     cache_t::bad_cache(receiver, (SEL)k, cls);
 }
 
-
+/// 扩容
 void cache_t::expand()
 {
     cacheUpdateLock.assertLocked();
@@ -557,7 +557,7 @@ void cache_t::expand()
     reallocate(oldCapacity, newCapacity);
 }
 
-
+/// 添加缓存
 static void cache_fill_nolock(Class cls, SEL sel, IMP imp, id receiver)
 {
     cacheUpdateLock.assertLocked();
