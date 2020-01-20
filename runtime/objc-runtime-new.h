@@ -218,7 +218,6 @@ struct entsize_list_tt {
     };
 };
 
-
 struct method_t {
     SEL name;
     const char *types;

@@ -4726,6 +4726,7 @@ static method_t *search_method_list(const method_list_t *mlist, SEL sel)
     return nil;
 }
 
+///Class中根据sel查找方法
 static method_t *
 getMethodNoSuper_nolock(Class cls, SEL sel)
 {
@@ -4991,7 +4992,7 @@ IMP lookUpImpOrNil(Class cls, SEL sel, id inst,
     else return imp;
 }
 
-
+/// 根据sel 从当前类中搜索imp。 不查找父类
 /***********************************************************************
 * lookupMethodInClassAndLoadCache.
 * Like _class_lookupMethodAndLoadCache, but does not search superclasses.

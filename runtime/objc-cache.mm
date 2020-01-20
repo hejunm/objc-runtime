@@ -368,12 +368,14 @@ size_t cache_t::bytesForCapacity(uint32_t cap)
     return sizeof(bucket_t) * (cap + 1);
 }
 
+/// 获取最后一个bucket_t
 bucket_t *cache_t::endMarker(struct bucket_t *b, uint32_t cap) 
 {
     // bytesForCapacity() chooses whether the end marker is inline or not
     return (bucket_t *)((uintptr_t)b + bytesForCapacity(cap)) - 1;
 }
 
+/// 创建新的
 bucket_t *allocateBuckets(mask_t newCapacity)
 {
     // Allocate one extra bucket to mark the end of the list.
@@ -416,7 +418,7 @@ bucket_t *allocateBuckets(mask_t newCapacity)
 
 #endif
 
-
+/// 获取空bucket
 bucket_t *emptyBucketsForCapacity(mask_t capacity, bool allocate = true)
 {
     cacheUpdateLock.assertLocked();
@@ -457,7 +459,7 @@ bucket_t *emptyBucketsForCapacity(mask_t capacity, bool allocate = true)
     return emptyBucketsList[index];
 }
 
-
+///缓存是否为空
 bool cache_t::isConstantEmptyCache()
 {
     return 
@@ -465,12 +467,13 @@ bool cache_t::isConstantEmptyCache()
         buckets() == emptyBucketsForCapacity(capacity(), false);
 }
 
+///是否可以释放
 bool cache_t::canBeFreed()
 {
     return !isConstantEmptyCache();
 }
 
-
+/// 释放旧的，生成新的
 void cache_t::reallocate(mask_t oldCapacity, mask_t newCapacity)
 {
     bool freeOld = canBeFreed();
@@ -493,7 +496,7 @@ void cache_t::reallocate(mask_t oldCapacity, mask_t newCapacity)
     }
 }
 
-
+///异常报警
 void cache_t::bad_cache(id receiver, SEL sel, Class isa)
 {
     // Log in separate steps in case the logging itself causes a crash.
@@ -595,6 +598,7 @@ static void cache_fill_nolock(Class cls, SEL sel, IMP imp, id receiver)
     bucket->set(key, imp);
 }
 
+////添加缓存
 void cache_fill(Class cls, SEL sel, IMP imp, id receiver)
 {
 #if !DEBUG_TASK_THREADS
@@ -606,7 +610,7 @@ void cache_fill(Class cls, SEL sel, IMP imp, id receiver)
 #endif
 }
 
-
+/// 重置缓存
 // Reset this entire cache to the uncached lookup by reallocating it.
 // This must not shrink the cache - that breaks the lock-free scheme.
 void cache_erase_nolock(Class cls)
@@ -626,7 +630,7 @@ void cache_erase_nolock(Class cls)
     }
 }
 
-
+////清除缓存
 void cache_delete(Class cls)
 {
     mutex_locker_t lock(cacheUpdateLock);
@@ -793,6 +797,7 @@ enum {
     INIT_GARBAGE_COUNT = 128
 };
 
+///存放垃圾的空间
 static void _garbage_make_room(void)
 {
     static int first = 1;
@@ -815,7 +820,7 @@ static void _garbage_make_room(void)
     }
 }
 
-
+/// 收集待释放的内存资源
 /***********************************************************************
 * cache_collect_free.  Add the specified malloc'd memory to the list
 * of them to free at some later point.
@@ -834,7 +839,7 @@ static void cache_collect_free(bucket_t *data, mask_t capacity)
     garbage_refs[garbage_count++] = data;
 }
 
-
+/// 释放内存资源
 /***********************************************************************
 * cache_collect.  Try to free accumulated dead caches.
 * collectALot tries harder to free memory.
